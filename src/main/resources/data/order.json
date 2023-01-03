@@ -1,0 +1,19 @@
+{
+  "howPay": "CARD/CASH",
+  "howDeliver": "DELIVERY/POINT_OF_DELIVERY",
+  "items": [
+    {
+      "id": "123",
+      "created": "...",
+      "image": "pic2",
+      "name": "Clothes",
+      "description": "description1",
+      "quantity": "100",
+      "price": "500",
+      "category": "CLOTHING",
+      "countBy": "3",
+      "onSale": ""
+    }
+  ]
+
+}

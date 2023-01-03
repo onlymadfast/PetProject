@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Clothes1",
+    "image": "http://localhost:8080/item/image/clothing1.jpg",
+    "description": "description for clothes1",
+    "quantityOnWarehouse": 100,
+    "price": 100,
+    "category": "CLOTHING"
+  },
+  {
+    "name": "Accessor",
+    "image": "http://localhost:8080/item/image/acc1.jpg",
+    "description": "description",
+    "quantityOnWarehouse": 100,
+    "price": 999,
+    "category": "ACCESSORIES"
+  },
+  {
+    "name": "Shoes1",
+    "image": "http://localhost:8080/item/image/shoes1.jpg",
+    "description": "description for shoes",
+    "quantityOnWarehouse": 100,
+    "price": 5000,
+    "category": "SHOES"
+  }
+]

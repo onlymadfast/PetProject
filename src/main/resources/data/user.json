@@ -1,0 +1,36 @@
+[
+  {
+    "username": "user1",
+    "password": "123",
+    "email": "123@mail.com",
+    "firstName": "Franck",
+    "lastName": "Ocean",
+    "middleName": "Frankowich",
+    "birthday": "1998-05-25",
+    "address": {
+      "country": "USA",
+      "city": "New York",
+      "zip": "192829",
+      "street": "Bugatti",
+      "house": "534",
+      "apartment": "787"
+    }
+  },
+  {
+    "username": "user2",
+    "password": "123456",
+    "email": "123456@mail.com",
+    "firstName": "Aziza",
+    "lastName": "Cranck",
+    "middleName": "Djopovna",
+    "birthday": "1998-12-12",
+    "address": {
+      "country": "Canada",
+      "city": "Wow town",
+      "zip": "77862",
+      "street": "BMW street",
+      "house": "777",
+      "apartment": "3"
+    }
+  }
+]
