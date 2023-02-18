@@ -7,11 +7,9 @@ import com.example.tsipadan.petproject.exception.IncorrectValueException;
 import com.example.tsipadan.petproject.mapper.UserMapper;
 import com.example.tsipadan.petproject.model.User;
 import com.example.tsipadan.petproject.model.enumeration.Role;
-import com.example.tsipadan.petproject.repository.AddressRepository;
 import com.example.tsipadan.petproject.repository.UserRepository;
 import com.example.tsipadan.petproject.service.api.UserService;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,16 +18,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional
-//если методу нужен своя реализация Transactional, пожалуйста.
 //https://docs.spring.io/spring-framework/docs/current/reference/html/data-access.html#transaction-declarative-annotations
-//transactional does not work correctly with non-public methods
 public class UserServiceImpl implements UserService {
 
     private static final String CHANGED_PASSWORD = "Password has been changed";
@@ -37,7 +31,6 @@ public class UserServiceImpl implements UserService {
 
     private final UserMapper userMapper;
     private final UserRepository userRepository;
-    private final AddressRepository addressRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -55,17 +48,24 @@ public class UserServiceImpl implements UserService {
         return userRepository.findAll().stream().map(userMapper::mapToDTO).collect(Collectors.toList());
     }
 
+    @Transactional
     @Override
     public UserDTO createUser(User entity) {
         Optional<User> find = userRepository.findByUsername(entity.getUsername());
         if (find.isPresent()) {
-            throw new EntityDuplicateException("User with username < " + entity.getUsername() + " > already exist");
+            if (find.get().getUsername().equals(entity.getUsername())) {
+                throw new EntityDuplicateException("User with username < " + entity.getUsername() + " > already exist");
+            }
+            if (find.get().getEmail().equals(entity.getEmail())) {
+                throw new EntityDuplicateException("User with email < " + entity.getEmail() + " > already exist");
+            }
         }
         User result = userRepository.save(setUserFieldsForCreate(entity));
         log.info("Create user < {} >", result.getId());
         return userMapper.mapToDTO(result);
     }
 
+    @Transactional
     @Override
     public User saveUser(User user) {
         return userRepository.save(user);
@@ -80,6 +80,7 @@ public class UserServiceImpl implements UserService {
             throw new EntityNotFoundException("User with id < " + userId + " > doesn't exist");
     }
 
+    @Transactional
     @Override
     public UserDTO updateUser(UUID id, UserDTO userDTO) {
         log.info("Update user with id < {} >", id);
@@ -93,9 +94,9 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @Transactional
     @Override
     public String updatePassword(UUID id, List<String> listOfPass) {
-        log.info("Try to change password");
         Optional<User> find = userRepository.findById(id);
         if (find.isPresent()) {
             User user = find.get();
@@ -110,6 +111,7 @@ public class UserServiceImpl implements UserService {
             throw new EntityNotFoundException("User with " + id + " id, not found");
     }
 
+    @Transactional
     @Override
     public String deleteUser(UUID id) {
         Optional<User> find = userRepository.findById(id);
@@ -131,10 +133,6 @@ public class UserServiceImpl implements UserService {
         user.setMiddleName(entity.getMiddleName());
         user.setBirthday(entity.getBirthday());
         user.setRole(Role.USER);
-        if (entity.getAddress() != null) {
-            addressRepository.save(entity.getAddress());
-            user.setAddress(entity.getAddress());
-        }
         return user;
     }
 
