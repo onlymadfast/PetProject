@@ -5,9 +5,11 @@ import com.example.tsipadan.petproject.exception.EntityDuplicateException;
 import com.example.tsipadan.petproject.exception.EntityNotFoundException;
 import com.example.tsipadan.petproject.exception.IncorrectValueException;
 import com.example.tsipadan.petproject.mapper.UserMapper;
+import com.example.tsipadan.petproject.model.Response;
+import com.example.tsipadan.petproject.model.Role;
 import com.example.tsipadan.petproject.model.User;
-import com.example.tsipadan.petproject.model.enumeration.Role;
 import com.example.tsipadan.petproject.repository.UserRepository;
+import com.example.tsipadan.petproject.service.api.RoleService;
 import com.example.tsipadan.petproject.service.api.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,9 +17,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -26,16 +27,13 @@ import java.util.stream.Collectors;
 //https://docs.spring.io/spring-framework/docs/current/reference/html/data-access.html#transaction-declarative-annotations
 public class UserServiceImpl implements UserService {
 
-    private static final String CHANGED_PASSWORD = "Password has been changed";
-    private static final String DELETE = "User has been deleted";
-
+    private final RoleService roleService;
     private final UserMapper userMapper;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
     public UserDTO findUserById(UUID id) {
-        log.info("Find user with < {} >  ", id);
         Optional<User> userOptional = userRepository.findById(id);
         if (userOptional.isPresent()) {
             return userMapper.mapToDTO(userOptional.get());
@@ -61,7 +59,7 @@ public class UserServiceImpl implements UserService {
             }
         }
         User result = userRepository.save(setUserFieldsForCreate(entity));
-        log.info("Create user < {} >", result.getId());
+        log.info("Created user < {} >", result.getId());
         return userMapper.mapToDTO(result);
     }
 
@@ -83,20 +81,20 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public UserDTO updateUser(UUID id, UserDTO userDTO) {
-        log.info("Update user with id < {} >", id);
         Optional<User> userOptional = userRepository.findById(id);
         if (userOptional.isPresent() == Boolean.FALSE) {
             throw new EntityNotFoundException("User < " + id + " > doesn't exist");
         } else {
             User user = userOptional.get();
             User result = userRepository.save(setUserFieldsForUpdate(user, userDTO));
+            log.info("Updated user with id < {} >", result.getId());
             return userMapper.mapToDTO(result);
         }
     }
 
     @Transactional
     @Override
-    public String updatePassword(UUID id, List<String> listOfPass) {
+    public Response updatePassword(UUID id, List<String> listOfPass) {
         Optional<User> find = userRepository.findById(id);
         if (find.isPresent()) {
             User user = find.get();
@@ -104,7 +102,11 @@ public class UserServiceImpl implements UserService {
                 user.setPassword(passwordEncoder.encode(listOfPass.get(1)));
                 userRepository.save(user);
                 log.info("Successful changed password < {} >", id);
-                return CHANGED_PASSWORD;
+                return Response.builder()
+                        .localDateTime(LocalDateTime.now())
+                        .status(true)
+                        .message("Password has been changed")
+                        .build();
             } else
                 throw new IncorrectValueException("Old password doesn't match with existing user`s password");
         } else
@@ -113,12 +115,16 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public String deleteUser(UUID id) {
+    public Response deleteUser(UUID id) {
         Optional<User> find = userRepository.findById(id);
         if (find.isPresent()) {
             userRepository.deleteById(id);
             log.info("Successful find and delete user");
-            return DELETE;
+            return Response.builder()
+                    .localDateTime(LocalDateTime.now())
+                    .status(true)
+                    .message("Successfully deleted user < " + id + " >")
+                    .build();
         } else
             throw new EntityNotFoundException("User with id < " + id + " > doesn't exist");
     }
@@ -132,7 +138,12 @@ public class UserServiceImpl implements UserService {
         user.setLastName(entity.getLastName());
         user.setMiddleName(entity.getMiddleName());
         user.setBirthday(entity.getBirthday());
-        user.setRole(Role.USER);
+
+        if (entity.getRoles() != null) {
+            Set<Role> roles = processingRoles(entity.getRoles());
+            user.setRoles(roles);
+        }
+
         return user;
     }
 
@@ -143,7 +154,27 @@ public class UserServiceImpl implements UserService {
         user.setMiddleName(userDTO.getMiddleName());
         user.setEmail(userDTO.getEmail());
         user.setBirthday(userDTO.getBirthday());
+
+        if (userDTO.getRoles() != null) {
+            Set<Role> roles = processingRoles(userDTO.getRoles());
+            user.setRoles(roles);
+        }
+
         return user;
+    }
+
+    //работаем с ролями, если есть в репозитории добавляем в список, если нету, создаем и добавляем
+    private Set<Role> processingRoles(Set<Role> roles) {
+        Set<Role> roleList = new HashSet<>();
+        roles.forEach(role -> {
+            if (roleService.isRoleExist(role.getRoleName())) {
+                roleList.add(role);
+            } else {
+                Role newRole = roleService.createRole(role);
+                roleList.add(newRole);
+            }
+        });
+        return roleList;
     }
 
 }

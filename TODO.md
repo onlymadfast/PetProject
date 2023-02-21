@@ -138,3 +138,39 @@ ApprovedFlag - если заказ существует и оплачен
     - при удачной оплате заказа кол-во товара обновляется у каждой заказанной позиции;
     - при удалении заказа админом, товар возвращается на склад;
 
+Controllers & Permissions
+
+AddressController:
+    - user/address/{userId} - GET - getAddressFromUser            - ROLE_USER, ROLE_ADMIN
+    - user/address/{userId} - POST - createOrUpdateAddressForUser - ROLE_USER, ROLE_ADMIN
+    - user/address/{userId} - DELETE - deleteUserAddress          - ROLE_USER, ROLE_ADMIN
+
+AuthController: 
+    - security/auth/authenticate - POST - authUser - permitAll -> возможно стоит настроить только на фронт обращение?
+
+ItemController: 
+    - /items/list - GET - getAllItems                             - ROLE_USER, ROLE_ADMIN, ROLE_ANONYMOUS
+    - /items/{itemId} - GET - getItemById                         - ROLE_USER, ROLE_ADMIN, ROLE_ANONYMOUS
+    - /items/item/category/{category} - GET - getItemByCategory   - ROLE_USER, ROLE_ADMIN, ROLE_ANONYMOUS
+    - /items/popular - GET - getTopItems                          - ROLE_USER, ROLE_ADMIN, ROLE_ANONYMOUS
+    - /items/edit - POST - createItem                             - ROLE_ADMIN
+    - /items/edit/{itemId} - PUT - updateItem                     - ROLE_ADMIN
+    - /items/edit/{itemId} - DELETE - deleteItem                  - ROLE_ADMIN
+
+OrderController:
+    - /order/orders/{userId} - GET - getOrdersByUserId            - ROLE_USER, ROLE_ADMIN
+    - /order/make/{userId} - POST - createOrder                   - ROLE_USER
+    - /order/edit/{orderId}/{userId} - DELETE - deleteOrder       - ROLE_ADMIN
+
+UserController:
+    - /user/access/list - GET - getAllUsers                      - ROLE_ADMIN
+    - /user/access/{id} - GET - getUserById                      - ROLE_ADMIN
+    - /user/access/create - POST - createUser                    - ROLE_USER, ROLE_ADMIN, ROLE_ANONYMOUS
+    - /user/access/edit/{id} - PUT - updateUser                  - ROLE_ADMIN, ROLE_USER
+    - /user/access/edit/pass/{id} - PUT - updatePassword         - ROLE_USER
+    - /user/access/edit/{id} - DELETE - deleteUserById           - ROLE_ADMIN
+
+RoleController:
+    - /role/access/list - GET - getAllRoles                       - ROLE_ADMIN
+    - /role/access/edit - POST - createRole                       - ROLE_ADMIN
+    - /role/access/edit/{roleId} - DELETE - deleteRole            - ROLE_ADMIN

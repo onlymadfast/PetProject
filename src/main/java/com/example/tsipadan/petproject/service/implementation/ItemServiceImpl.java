@@ -6,6 +6,7 @@ import com.example.tsipadan.petproject.exception.EntityNotFoundException;
 import com.example.tsipadan.petproject.exception.IncorrectValueException;
 import com.example.tsipadan.petproject.mapper.ItemMapper;
 import com.example.tsipadan.petproject.model.Item;
+import com.example.tsipadan.petproject.model.Response;
 import com.example.tsipadan.petproject.model.enumeration.Category;
 import com.example.tsipadan.petproject.repository.ItemRepository;
 import com.example.tsipadan.petproject.service.api.ItemService;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -29,8 +31,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
 
-    private static final String DELETE = "Item has been deleted";
-
     private final ItemMapper itemMapper;
     private final ItemRepository itemRepository;
 
@@ -41,11 +41,6 @@ public class ItemServiceImpl implements ItemService {
             return itemMapper.mapToDTO(itemOptional.get());
         } else
             throw new EntityNotFoundException("Item with < " + itemId + " > doesn't exist ");
-    }
-
-    @Override
-    public Optional<Item> findOptionalItem(UUID itemId) {
-        return itemRepository.findById(itemId);
     }
 
     @Override
@@ -128,11 +123,15 @@ public class ItemServiceImpl implements ItemService {
 //    }
 
     @Override
-    public String deleteItemByName(UUID itemId) {
+    public Response deleteItemById(UUID itemId) {
         Optional<Item> itemOptional = itemRepository.findById(itemId);
         if (itemOptional.isPresent()) {
             itemRepository.deleteById(itemId);
-            return DELETE;
+            return Response.builder()
+                    .localDateTime(LocalDateTime.now())
+                    .status(true)
+                    .message("Item < " + itemId + " > was successfully deleted")
+                    .build();
         } else
             throw new EntityNotFoundException("Item with id < " + itemId + " > doesn't exist");
     }
@@ -167,22 +166,29 @@ public class ItemServiceImpl implements ItemService {
 
 
     private String setImageUrl(Category category) {
-        String[] clothing = { "clothing1.jpg", "clothing2.jpg", "clothing3.jpg" };
-        String[] shoes = { "shoes1.jpg", "shoes2.jpg", "shoes3.jpg" };
-        String[] acc = { "acc1.jpg", "acc2.jpg", "acc3.jpg" };
-        String[] randomPic = { "ran1.jpg", "ran2.jpg", "ran3.jpg" };
+        String[] clothing = {"clothing1.jpg", "clothing2.jpg", "clothing3.jpg"};
+        String[] shoes = {"shoes1.jpg", "shoes2.jpg", "shoes3.jpg"};
+        String[] acc = {"acc1.jpg", "acc2.jpg", "acc3.jpg"};
+        String[] randomPic = {"ran1.jpg", "ran2.jpg", "ran3.jpg"};
 
         switch (category) {
-            case CLOTHING: return ServletUriComponentsBuilder.fromCurrentContextPath().path("/item/image/"
-                    + clothing[new Random().nextInt(3)]).toUriString();
-            case SHOES: return ServletUriComponentsBuilder.fromCurrentContextPath().path("/item/image/"
-                    + shoes[new Random().nextInt(3)]).toUriString();
-            case ACCESSORIES: return ServletUriComponentsBuilder.fromCurrentContextPath().path("/item/image/"
-                    + acc[new Random().nextInt(3)]).toUriString();
+            case CLOTHING:
+                return ServletUriComponentsBuilder.fromCurrentContextPath().path("/item/image/"
+                        + clothing[new Random().nextInt(3)]).toUriString();
+            case SHOES:
+                return ServletUriComponentsBuilder.fromCurrentContextPath().path("/item/image/"
+                        + shoes[new Random().nextInt(3)]).toUriString();
+            case ACCESSORIES:
+                return ServletUriComponentsBuilder.fromCurrentContextPath().path("/item/image/"
+                        + acc[new Random().nextInt(3)]).toUriString();
         }
 
         return ServletUriComponentsBuilder.fromCurrentContextPath().path("/item/image/"
                 + randomPic[new Random().nextInt(3)]).toUriString();
+    }
+
+    private Optional<Item> findOptionalItem(UUID itemId) {
+        return itemRepository.findById(itemId);
     }
 
     private ItemDTO setItemFieldsOnCreateOrUpdate(Item item, Item entity) {

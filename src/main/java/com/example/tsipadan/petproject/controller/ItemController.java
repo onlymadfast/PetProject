@@ -2,22 +2,16 @@ package com.example.tsipadan.petproject.controller;
 
 import com.example.tsipadan.petproject.dto.ItemDTO;
 import com.example.tsipadan.petproject.model.Item;
-import com.example.tsipadan.petproject.model.enumeration.Category;
+import com.example.tsipadan.petproject.model.Response;
 import com.example.tsipadan.petproject.service.api.ItemService;
 import lombok.RequiredArgsConstructor;
-import net.bytebuddy.utility.nullability.MaybeNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.MediaType;
 import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.constraints.Null;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,7 +24,7 @@ public class ItemController {
 
     private final ItemService itemService;
 
-    @GetMapping("/all")
+    @GetMapping("/list")
     private Page<ItemDTO> getAllItems(@Nullable Integer page,
                                       @Nullable Integer size,
                                       @Nullable String sort) {
@@ -46,7 +40,7 @@ public class ItemController {
         return itemService.findItemById(itemId);
     }
 
-    @GetMapping("/category/{category}")
+    @GetMapping("/item/category/{category}")
     private Page<ItemDTO> getItemByCategory(@PathVariable String category,
                                             @Nullable Integer page,
                                             @Nullable Integer size) {
@@ -56,25 +50,25 @@ public class ItemController {
         return itemService.findItemByCategory(category, pageable);
     }
 
-    @GetMapping("/top10")
+    @GetMapping("/popular")
     public List<ItemDTO> getTopItems() {
         return itemService.getTopItemsByCountBuyDesc();
     }
 
-    @PostMapping
+    @PostMapping("/edit")
     private ItemDTO createItem(@RequestBody Item entity) {
         return itemService.createItem(entity);
     }
 
-    @PutMapping("/{itemId}")
+    @PutMapping("/edit/{itemId}")
     private ItemDTO updateItem(@PathVariable UUID itemId,
                                @RequestBody Item entity) {
         return itemService.updateItem(itemId, entity);
     }
 
-    @DeleteMapping("/{itemId}")
-    private String deleteItem(@PathVariable UUID itemId) {
-        return itemService.deleteItemByName(itemId);
+    @DeleteMapping("/edit/{itemId}")
+    private Response deleteItem(@PathVariable UUID itemId) {
+        return itemService.deleteItemById(itemId);
     }
 
 //    @PutMapping("/update/image/{name}/{category}")

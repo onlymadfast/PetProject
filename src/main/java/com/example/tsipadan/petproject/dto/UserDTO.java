@@ -1,20 +1,16 @@
 package com.example.tsipadan.petproject.dto;
 
-import com.example.tsipadan.petproject.model.enumeration.Role;
+import com.example.tsipadan.petproject.model.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.*;
+import lombok.Data;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@ToString
+@Data
 public class UserDTO {
 
     private UUID id;
@@ -28,10 +24,8 @@ public class UserDTO {
     private String lastName;
     private String middleName;
     private LocalDate birthday;
-    @JsonIgnore
-    private String role;
+    private Set<Role> roles;
 
-//    @JsonInclude(Include.NON_NULL)
     private AddressDTO address;
     private List<OrderDTO> order;
 

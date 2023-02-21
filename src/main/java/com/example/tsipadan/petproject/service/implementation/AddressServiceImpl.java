@@ -6,9 +6,9 @@ import com.example.tsipadan.petproject.exception.EntityNotFoundException;
 import com.example.tsipadan.petproject.mapper.AddressMapper;
 import com.example.tsipadan.petproject.mapper.UserMapper;
 import com.example.tsipadan.petproject.model.Address;
+import com.example.tsipadan.petproject.model.Response;
 import com.example.tsipadan.petproject.model.User;
 import com.example.tsipadan.petproject.repository.AddressRepository;
-import com.example.tsipadan.petproject.repository.UserRepository;
 import com.example.tsipadan.petproject.service.api.AddressService;
 import com.example.tsipadan.petproject.service.api.UserService;
 import lombok.RequiredArgsConstructor;
@@ -16,9 +16,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import java.time.LocalDateTime;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 
 @Slf4j
@@ -26,8 +25,6 @@ import java.util.concurrent.CompletableFuture;
 @Transactional
 @RequiredArgsConstructor
 public class AddressServiceImpl implements AddressService {
-
-    private static final String DELETE = "Address has been deleted";
 
     private final AddressMapper addressMapper;
     private final UserMapper userMapper;
@@ -54,7 +51,7 @@ public class AddressServiceImpl implements AddressService {
     }
 
     @Override
-    public String deleteAddressByUserId(UUID userId) {
+    public Response deleteAddressByUserId(UUID userId) {
         UserDTO userDTO = userService.findUserById(userId);
         User user = userMapper.mapToEntity(userDTO);
         if (user.getAddress().getId() != null) {
@@ -62,15 +59,16 @@ public class AddressServiceImpl implements AddressService {
             user.setAddress(null);
             userService.saveUser(user);
         } else
-            throw new NullPointerException("Address id from user isEmpty");
+            throw new EntityNotFoundException("Address id from user is null");
         log.info("Delete address by userId < {} >", userId);
-        return DELETE;
+        return Response.builder()
+                .localDateTime(LocalDateTime.now())
+                .message("Successfully deleted address from user < " + userId + " >")
+                .build();
     }
 
-    @Override
-    public boolean isUserHaveAddress(UUID id) {
-        UserDTO userDTO = userService.findUserById(id);
-        return userDTO.getAddress() != null;
+    private boolean isUserHaveAddress(UUID id) {
+        return userService.findUserById(id).getAddress() != null;
     }
 
     private Address setAddress(Address entity) {

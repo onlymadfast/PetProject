@@ -1,18 +1,28 @@
 package com.example.tsipadan.petproject.service.api;
 
 import com.example.tsipadan.petproject.dto.UserDTO;
+import com.example.tsipadan.petproject.model.Response;
 import com.example.tsipadan.petproject.model.User;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 public interface UserService {
 
-    //поиск клиента по имени, ограничить такой поиск по правам?
+    /**
+     * Find user by id
+     *
+     * @param uuid - user identifier
+     * @return - user dto
+     */
     UserDTO findUserById(UUID uuid);
 
-    //создание клиента
+    /**
+     * Create user
+     *
+     * @param userDTO - user model
+     * @return - user dto
+     */
     UserDTO createUser(User userDTO);
 
     //обычное сохранение клиента, выделено чтобы не иметь репозиторий в ином сервисе
@@ -21,16 +31,37 @@ public interface UserService {
     //выделенный отдельный метод для поиска с возвратом оригинальной модели
     User findUserOrThrowException(UUID userId);
 
-    //обновление клиента в личном кабинете
-    UserDTO updateUser(UUID id, UserDTO userDTO);
+    /**
+     * Edit user by id
+     *
+     * @param userId  - user identifier
+     * @param userDTO - user model
+     * @return - user dto
+     */
+    UserDTO updateUser(UUID userId, UserDTO userDTO);
 
-    //показ всех клиентов, ограничить использование этим методом
+    /**
+     * Get all users
+     *
+     * @return - list of users
+     */
     List<UserDTO> showAllUsers();
 
-    //обновление пароля при совпадении со старым
-    String updatePassword(UUID id, List<String> listOfPass);
+    /**
+     * Update old password by comparing old with new pass
+     *
+     * @param userId     - user who wont to change
+     * @param listOfPass - old pass and new pass in object
+     * @return - response of operation
+     */
+    Response updatePassword(UUID userId, List<String> listOfPass);
 
-    //удаление клиента, ограничить доступ по правам
-    String deleteUser(UUID id);
+    /**
+     * Delete user by id
+     *
+     * @param userId - user identifier
+     * @return - response of operation
+     */
+    Response deleteUser(UUID userId);
 
 }

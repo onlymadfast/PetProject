@@ -1,7 +1,5 @@
 package com.example.tsipadan.petproject.model;
 
-import com.example.tsipadan.petproject.model.enumeration.Role;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -9,10 +7,10 @@ import lombok.ToString;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Getter
@@ -20,7 +18,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @ToString
 @Entity
-@Table(name = "client")
+@Table(name = "our_user")
 public class User {
 
     @Id
@@ -53,9 +51,9 @@ public class User {
     @Column(name = "birthday")
     private LocalDate birthday;
 
-    @Enumerated(value = EnumType.STRING)
-    @Column(name = "role")
-    private Role role;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @Column(name = "roles")
+    private Set<Role> roles;
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "address_id")

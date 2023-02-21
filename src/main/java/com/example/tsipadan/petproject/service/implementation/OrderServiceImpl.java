@@ -6,25 +6,21 @@ import com.example.tsipadan.petproject.exception.EntityNotFoundException;
 import com.example.tsipadan.petproject.exception.IncorrectValueException;
 import com.example.tsipadan.petproject.mapper.OrderMapper;
 import com.example.tsipadan.petproject.mapper.UserMapper;
-import com.example.tsipadan.petproject.model.Address;
-import com.example.tsipadan.petproject.model.Item;
 import com.example.tsipadan.petproject.model.Order;
+import com.example.tsipadan.petproject.model.Response;
 import com.example.tsipadan.petproject.model.User;
 import com.example.tsipadan.petproject.model.enumeration.StatusOrder;
 import com.example.tsipadan.petproject.model.enumeration.StatusPay;
 import com.example.tsipadan.petproject.repository.OrderRepository;
-import com.example.tsipadan.petproject.service.api.AddressService;
 import com.example.tsipadan.petproject.service.api.ItemService;
 import com.example.tsipadan.petproject.service.api.OrderService;
 import com.example.tsipadan.petproject.service.api.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -35,12 +31,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
 
-    private static final String DELETE = "Order has been deleted";
-
     private final OrderRepository orderRepository;
     private final UserService userService;
     private final ItemService itemService;
-    private final AddressService addressService;
     private final UserMapper userMapper;
     private final OrderMapper orderMapper;
 
@@ -60,7 +53,7 @@ public class OrderServiceImpl implements OrderService {
         entity.setStatusPay(StatusPay.NOT_PAID);
         entity.setApprovedFlag(Boolean.FALSE);
         //ожидает оплаты только если у клиента есть адрес
-        if (user.getAddress() !=null) {
+        if (user.getAddress() != null) {
             entity.setStatusOrder(StatusOrder.PENDING_PAYMENT);
         } else {
             entity.setStatusOrder(StatusOrder.WITHOUT_ADDRESS);
@@ -108,7 +101,7 @@ public class OrderServiceImpl implements OrderService {
 
                 return true;
             } else
-                throw new IncorrectValueException("Order < " + order.getId() +  " > doesn't paid");
+                throw new IncorrectValueException("Order < " + order.getId() + " > doesn't paid");
         } else
             throw new EntityNotFoundException("Order with id < " + orderId + " > doesn't exist");
     }
@@ -132,7 +125,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     @Override
-    public String deleteOrderByOrderId(UUID orderId, UUID userId) {
+    public Response deleteOrderByOrderId(UUID orderId, UUID userId) {
         Optional<Order> orderOptional = orderRepository.findById(orderId);
         if (orderOptional.isPresent()) {
             Order order = orderOptional.get();
@@ -152,13 +145,15 @@ public class OrderServiceImpl implements OrderService {
 
             //возможно стоит это сделать через кафку, асинхронно
 
-            return DELETE;
+            return Response.builder()
+                    .localDateTime(LocalDateTime.now())
+                    .status(true)
+                    .message("Successfully deleting order < " + orderId + " > from user < " + userId + " >")
+                    .build();
+
         } else
             throw new EntityNotFoundException("Order with given id < " + orderId + " > doesn't exist");
     }
-
-
-
 
 
     //TODO check spring best practice - https://medium.com/codex/spring-boot-microservices-coding-style-guidelines-and-best-practices-1dec229161c8

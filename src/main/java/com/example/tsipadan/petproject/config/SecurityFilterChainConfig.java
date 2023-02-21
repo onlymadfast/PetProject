@@ -3,7 +3,9 @@ package com.example.tsipadan.petproject.config;
 import com.example.tsipadan.petproject.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -19,7 +21,6 @@ import java.util.Collections;
 
 @Configuration
 @EnableWebSecurity
-//@EnableGlobalMethodSecurity(prePostEnabled = true) //enables the usage of pre/post security annotations
 public class SecurityFilterChainConfig {
 
     private final AuthenticationProvider authenticationProvider;
@@ -34,10 +35,30 @@ public class SecurityFilterChainConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
-                .csrf().disable()
+                .cors().and().csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/auth/**")
-                .permitAll()
+
+                //addressController
+                .antMatchers( "/user/address/**").hasAnyRole("ADMIN","USER")
+                //authController
+                .antMatchers(HttpMethod.POST, "/security/auth/authenticate").permitAll()
+                //itemController
+                .antMatchers("/items/**").hasAnyRole("ADMIN","USER")
+                .antMatchers("/items/edit/**").hasRole("ADMIN")
+                //orderController
+                .antMatchers(HttpMethod.GET, "/order/orders/**").hasAnyRole("ADMIN","USER")
+                .antMatchers(HttpMethod.POST, "/order/make/**").hasRole("USER")
+                .antMatchers(HttpMethod.DELETE, "/order/edit/**").hasRole("ADMIN")
+                //userController
+                .antMatchers(HttpMethod.GET, "/user/access/list").hasRole("ADMIN")
+                .antMatchers(HttpMethod.GET, "/user/access/**").hasRole("ADMIN")
+                .antMatchers(HttpMethod.POST, "/user/access/create").permitAll()
+                .antMatchers(HttpMethod.PUT, "/user/access/edit/**").hasAnyRole("ADMIN","USER")
+                .antMatchers(HttpMethod.PUT, "/user/access/edit/pass/**").hasRole("USER")
+                .antMatchers(HttpMethod.DELETE, "/user/access/edit/**").hasRole("ADMIN")
+                //roleController
+                .antMatchers("/role/access/**").hasRole("ADMIN")
+
                 .anyRequest()
                 .authenticated()
                 .and()
@@ -54,20 +75,20 @@ public class SecurityFilterChainConfig {
         return httpSecurity.build();
     }
 
-    //если буду пользоваться, то надо включить сверху в конфигурацию
-//    @Bean
-//    public CorsFilter corsFilter() {
-//        CorsConfiguration corsConfiguration = new CorsConfiguration();
-//        corsConfiguration.setAllowCredentials(true);
-//        corsConfiguration.setAllowedOrigins(Collections.singletonList("http://localhost:4200"));
-//        corsConfiguration.setAllowedHeaders(Arrays.asList("Origin", "Access-Control-Allow-Origin", "Content-Type",
-//                "Accept", "Authorization", "Origin, Accept", "X-Requested-With",
-//                "Access-Control-Allow-Request-Method", "Access-Control-Request-Headers"));
-//        corsConfiguration.setExposedHeaders(Arrays.asList("Origin", "Content-Type", "Accept", "Authorization",
-//                "Access-Control-Allow-Origin", "Access-Control-Allow-Origin", "Access-Control-Allow-Credentials"));
-//        corsConfiguration.setAllowedMethods(Arrays.asList("GET", "POST", "DELETE", "PUT", "OPTIONS"));
-//        UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
-//        urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration);
-//        return new CorsFilter(urlBasedCorsConfigurationSource);
-//    }
+    @Bean
+    public CorsFilter corsFilter() {
+        CorsConfiguration corsConfiguration = new CorsConfiguration();
+        corsConfiguration.setAllowCredentials(true);
+        corsConfiguration.setAllowedOrigins(Collections.singletonList("http://localhost:4200"));
+        corsConfiguration.setAllowedHeaders(Arrays.asList("Origin", "Access-Control-Allow-Origin", "Content-Type",
+                "Accept", "Authorization", "Origin, Accept", "X-Requested-With",
+                "Access-Control-Allow-Request-Method", "Access-Control-Request-Headers"));
+        corsConfiguration.setExposedHeaders(Arrays.asList("Origin", "Content-Type", "Accept", "Authorization",
+                "Access-Control-Allow-Origin", "Access-Control-Allow-Origin", "Access-Control-Allow-Credentials"));
+        corsConfiguration.setAllowedMethods(Arrays.asList("GET", "POST", "DELETE", "PUT", "OPTIONS"));
+        UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
+        urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration);
+        return new CorsFilter(urlBasedCorsConfigurationSource);
+    }
+
 }

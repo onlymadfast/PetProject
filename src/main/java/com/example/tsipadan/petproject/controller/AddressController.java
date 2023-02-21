@@ -2,6 +2,7 @@ package com.example.tsipadan.petproject.controller;
 
 import com.example.tsipadan.petproject.dto.AddressDTO;
 import com.example.tsipadan.petproject.model.Address;
+import com.example.tsipadan.petproject.model.Response;
 import com.example.tsipadan.petproject.service.api.AddressService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -9,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/userAddress")
+@RequestMapping("/user/address")
 @RequiredArgsConstructor
 public class AddressController {
 
@@ -27,7 +28,7 @@ public class AddressController {
     }
 
     @DeleteMapping("/{userId}")
-    private String deleteUserAddress(@PathVariable UUID userId) {
+    private Response deleteUserAddress(@PathVariable UUID userId) {
         return addressService.deleteAddressByUserId(userId);
     }
 

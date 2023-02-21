@@ -2,18 +2,31 @@ package com.example.tsipadan.petproject.service.api;
 
 import com.example.tsipadan.petproject.dto.OrderDTO;
 import com.example.tsipadan.petproject.dto.UserDTO;
-import com.example.tsipadan.petproject.model.Address;
 import com.example.tsipadan.petproject.model.Order;
+import com.example.tsipadan.petproject.model.Response;
 
 import java.util.List;
 import java.util.UUID;
 
 public interface OrderService {
 
-    //получить все заказы пользователя
+    /**
+     * Get all orders from user
+     *
+     * @param userId - user identifier
+     * @return - list of orders
+     */
     List<OrderDTO> getAllOrdersByUsername(UUID userId);
 
-    //метод создания заказа для клиента
+    /**
+     * Create order by user
+     * <p>
+     * расписать конкретные этапы создания заказа
+     *
+     * @param userId - user who want buy something
+     * @param entity - order object
+     * @return - user with orders
+     */
     UserDTO createOrder(UUID userId, Order entity);
 
     //оплата заказа
@@ -25,7 +38,13 @@ public interface OrderService {
     //смена approved статуса
     OrderDTO changeApprovedFlagToTrue(UUID orderId);
 
-    //удаление заказа по идентификатору у конкретного клиента
-    String deleteOrderByOrderId(UUID orderId, UUID userId);
+    /**
+     * Delete order from user by user identifier
+     *
+     * @param orderId - order identifier
+     * @param userId  - user identifier
+     * @return - response of operation
+     */
+    Response deleteOrderByOrderId(UUID orderId, UUID userId);
 
 }
