@@ -1,11 +1,12 @@
 package com.example.tsipadan.petproject.config;
 
+import com.example.tsipadan.petproject.security.CustomAccessDeniedHandler;
+import com.example.tsipadan.petproject.security.CustomAuthenticationEntryPoint;
 import com.example.tsipadan.petproject.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -15,7 +16,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
-import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -39,21 +39,21 @@ public class SecurityFilterChainConfig {
                 .authorizeRequests()
 
                 //addressController
-                .antMatchers( "/user/address/**").hasAnyRole("ADMIN","USER")
+                .antMatchers("/user/address/**").hasAnyRole("ADMIN", "USER")
                 //authController
                 .antMatchers(HttpMethod.POST, "/security/auth/authenticate").permitAll()
                 //itemController
-                .antMatchers("/items/**").hasAnyRole("ADMIN","USER")
+                .antMatchers("/items/view/**").permitAll()
                 .antMatchers("/items/edit/**").hasRole("ADMIN")
                 //orderController
-                .antMatchers(HttpMethod.GET, "/order/orders/**").hasAnyRole("ADMIN","USER")
+                .antMatchers(HttpMethod.GET, "/order/orders/**").hasAnyRole("ADMIN", "USER")
                 .antMatchers(HttpMethod.POST, "/order/make/**").hasRole("USER")
                 .antMatchers(HttpMethod.DELETE, "/order/edit/**").hasRole("ADMIN")
                 //userController
                 .antMatchers(HttpMethod.GET, "/user/access/list").hasRole("ADMIN")
                 .antMatchers(HttpMethod.GET, "/user/access/**").hasRole("ADMIN")
                 .antMatchers(HttpMethod.POST, "/user/access/create").permitAll()
-                .antMatchers(HttpMethod.PUT, "/user/access/edit/**").hasAnyRole("ADMIN","USER")
+                .antMatchers(HttpMethod.PUT, "/user/access/edit/**").hasAnyRole("ADMIN", "USER")
                 .antMatchers(HttpMethod.PUT, "/user/access/edit/pass/**").hasRole("USER")
                 .antMatchers(HttpMethod.DELETE, "/user/access/edit/**").hasRole("ADMIN")
                 //roleController
@@ -63,8 +63,10 @@ public class SecurityFilterChainConfig {
                 .authenticated()
                 .and()
                 .exceptionHandling()
-                .authenticationEntryPoint((request, response, ex) -> response
-                        .sendError(HttpServletResponse.SC_UNAUTHORIZED, ex.getMessage()))
+                // setting custom access denied handler for not authorized request
+                .accessDeniedHandler(new CustomAccessDeniedHandler())
+                // setting custom entry point for unauthenticated request
+                .authenticationEntryPoint(new CustomAuthenticationEntryPoint())
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

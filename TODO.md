@@ -149,13 +149,13 @@ AuthController:
     - security/auth/authenticate - POST - authUser - permitAll -> возможно стоит настроить только на фронт обращение?
 
 ItemController: 
-    - /items/list - GET - getAllItems                             - ROLE_USER, ROLE_ADMIN, ROLE_ANONYMOUS
-    - /items/{itemId} - GET - getItemById                         - ROLE_USER, ROLE_ADMIN, ROLE_ANONYMOUS
-    - /items/item/category/{category} - GET - getItemByCategory   - ROLE_USER, ROLE_ADMIN, ROLE_ANONYMOUS
-    - /items/popular - GET - getTopItems                          - ROLE_USER, ROLE_ADMIN, ROLE_ANONYMOUS
-    - /items/edit - POST - createItem                             - ROLE_ADMIN
-    - /items/edit/{itemId} - PUT - updateItem                     - ROLE_ADMIN
-    - /items/edit/{itemId} - DELETE - deleteItem                  - ROLE_ADMIN
+    - /items/view/list - GET - getAllItems                           - ROLE_USER, ROLE_ADMIN, ROLE_ANONYMOUS
+    - /items/view/{itemId} - GET - getItemById                       - ROLE_USER, ROLE_ADMIN, ROLE_ANONYMOUS
+    - /items/view/item/category/{category} - GET - getItemByCategory - ROLE_USER, ROLE_ADMIN, ROLE_ANONYMOUS
+    - /items/view/popular - GET - getTopItems                        - ROLE_USER, ROLE_ADMIN, ROLE_ANONYMOUS
+    - /items/edit - POST - createItem                                - ROLE_ADMIN
+    - /items/edit/{itemId} - PUT - updateItem                        - ROLE_ADMIN
+    - /items/edit/{itemId} - DELETE - deleteItem                     - ROLE_ADMIN
 
 OrderController:
     - /order/orders/{userId} - GET - getOrdersByUserId            - ROLE_USER, ROLE_ADMIN

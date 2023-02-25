@@ -24,7 +24,7 @@ public class ItemController {
 
     private final ItemService itemService;
 
-    @GetMapping("/list")
+    @GetMapping("/view/list")
     private Page<ItemDTO> getAllItems(@Nullable Integer page,
                                       @Nullable Integer size,
                                       @Nullable String sort) {
@@ -35,12 +35,12 @@ public class ItemController {
         return itemService.findAllItems(pageable);
     }
 
-    @GetMapping("/{itemId}")
+    @GetMapping("/view/{itemId}")
     private ItemDTO getItem(@PathVariable UUID itemId) {
         return itemService.findItemById(itemId);
     }
 
-    @GetMapping("/item/category/{category}")
+    @GetMapping("/view/item/category/{category}")
     private Page<ItemDTO> getItemByCategory(@PathVariable String category,
                                             @Nullable Integer page,
                                             @Nullable Integer size) {
@@ -50,7 +50,7 @@ public class ItemController {
         return itemService.findItemByCategory(category, pageable);
     }
 
-    @GetMapping("/popular")
+    @GetMapping("/view/popular")
     public List<ItemDTO> getTopItems() {
         return itemService.getTopItemsByCountBuyDesc();
     }

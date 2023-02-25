@@ -35,13 +35,13 @@ public class Item {
     @Column(name = "name", unique = true, nullable = false)
     private String name;
 
-    @Column(name = "description")
+    @Column(name = "description", nullable = false)
     private String description;
 
-    @Column(name = "quantityOnWarehouse")
+    @Column(name = "quantityOnWarehouse", nullable = false)
     private Integer quantityOnWarehouse;
 
-    @Column(name = "quantity")
+    @Column(name = "quantity", nullable = false)
     private Integer quantity; //quantity in clients card
 
     @Column(name = "price", nullable = false)
